@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -77,5 +77,154 @@
         create();
         move();
     </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Balls</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    var balls = [];
+    var xpos = [];
+    var ypos = [];
+    var xvel = [];
+    var yvel = [];
+    var ballSize = 30;
+
+    function create() {
+        for (let i = 0; i < 8; i++) {
+
+            let x = randomX();
+            let y = randomY();
+            let xvell = randomVel();
+            let yvell = randomVel();
+            let color = randomColor();
+
+            var div = document.createElement("div");
+
+            div.style.width = ballSize + "px";
+            div.style.height = ballSize + "px";
+            div.style.position = "absolute";
+            div.style.borderRadius = "50%";
+            div.style.left = x + "px";
+            div.style.top = y + "px";
+            div.style.background = color;
+
+            document.body.appendChild(div);
+
+            balls.push(div);
+            xpos.push(x);
+            ypos.push(y);
+            xvel.push(xvell);
+            yvel.push(yvell);
+        }
+    }
+
+    function randomX() {
+        return Math.random() * (window.innerWidth - ballSize);
+    }
+
+    function randomY() {
+        return Math.random() * (window.innerHeight - ballSize);
+    }
+
+    function randomColor() {
+        let palette = ["blue", "orange", "yellow"];
+        return palette[Math.floor(Math.random() * palette.length)];
+    }
+
+    function randomVel() {
+        let v = Math.floor(Math.random() * 10) - 5;
+        if (v === 0) {
+            v = 2;
+        }
+        return v;
+    }
+
+    function move() {
+
+        // Move all balls
+        for (let i = 0; i < balls.length; i++) {
+
+            xpos[i] += xvel[i];
+            ypos[i] += yvel[i];
+
+            // Wall collision
+            if (xpos[i] <= 0 || xpos[i] >= window.innerWidth - ballSize) {
+                xvel[i] *= -1;
+            }
+
+            if (ypos[i] <= 0 || ypos[i] >= window.innerHeight - ballSize) {
+                yvel[i] *= -1;
+            }
+
+            xpos[i] = Math.max(0, Math.min(xpos[i], window.innerWidth - ballSize));
+            ypos[i] = Math.max(0, Math.min(ypos[i], window.innerHeight - ballSize));
+        }
+
+        // Ball-to-ball collision
+        for (let i = 0; i < balls.length; i++) {
+            for (let j = i + 1; j < balls.length; j++) {
+
+                let dx = xpos[i] - xpos[j];
+                let dy = ypos[i] - ypos[j];
+
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < ballSize) {
+
+                    // Swap X velocity
+                    let tempX = xvel[i];
+                    xvel[i] = xvel[j];
+                    xvel[j] = tempX;
+
+                    // Swap Y velocity
+                    let tempY = yvel[i];
+                    yvel[i] = yvel[j];
+                    yvel[j] = tempY;
+
+                    // Separate the balls slightly
+                    let overlap = ballSize - distance;
+
+                    if (distance !== 0) {
+                        let nx = dx / distance;
+                        let ny = dy / distance;
+
+                        xpos[i] += nx * overlap / 2;
+                        ypos[i] += ny * overlap / 2;
+
+                        xpos[j] -= nx * overlap / 2;
+                        ypos[j] -= ny * overlap / 2;
+                    }
+                }
+            }
+        }
+
+        // Update ball positions
+        for (let i = 0; i < balls.length; i++) {
+            balls[i].style.left = xpos[i] + "px";
+            balls[i].style.top = ypos[i] + "px";
+        }
+
+        requestAnimationFrame(move);
+    }
+
+    create();
+    move();
+</script>
+
 </body>
 </html>
